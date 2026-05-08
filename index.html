@@ -29,78 +29,60 @@
    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
    <header class="bg-slate-900 text-white px-6 py-5">
     <h1 id="event-title" class="text-2xl font-bold">Wisuda Universitas 2025</h1>
-    <div class="flex items-center gap-4 mt-2 text-slate-300 text-sm">
-     <span class="flex items-center gap-1"><i data-lucide="calendar" style="width:14px;height:14px"></i> <span id="event-date">15 Juli 2025</span></span> <span class="flex items-center gap-1"><i data-lucide="map-pin" style="width:14px;height:14px"></i> <span id="event-location">Auditorium Utama</span></span>
+    <div class="flex items-center gap-4 mt-2 text-slate-300 text-sm"><span class="flex items-center gap-1"><i data-lucide="calendar" style="width:14px;height:14px"></i> <span id="event-date">15 Juli 2025</span></span> <span class="flex items-center gap-1"><i data-lucide="map-pin" style="width:14px;height:14px"></i> <span id="event-location">Auditorium Utama</span></span>
     </div>
-    <div id="stats" class="flex gap-4 mt-3">
-     <span class="bg-slate-700 px-3 py-1 rounded-full text-xs"><span id="stat-total">0</span> Undangan</span> <span class="bg-emerald-700 px-3 py-1 rounded-full text-xs"><span id="stat-checked">0</span> Hadir</span>
+    <div id="stats" class="flex gap-4 mt-3"><span class="bg-slate-700 px-3 py-1 rounded-full text-xs"><span id="stat-total">0</span> Undangan</span> <span class="bg-emerald-700 px-3 py-1 rounded-full text-xs"><span id="stat-checked">0</span> Hadir</span>
     </div>
    </header>
-   <nav class="flex px-4 pt-4 gap-2 flex-wrap">
-    <button onclick="switchTab('events')" id="tab-events" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Kelola Event</button> <button onclick="switchTab('guests')" id="tab-guests" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Daftar Tamu</button> <button onclick="switchTab('add')" id="tab-add" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Tambah Tamu</button> <button onclick="switchTab('scan')" id="tab-scan" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Scan / Check-in</button>
+   <nav class="flex px-4 pt-4 gap-2 flex-wrap"><button onclick="switchTab('events')" id="tab-events" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Kelola Event</button> <button onclick="switchTab('guests')" id="tab-guests" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Daftar Tamu</button> <button onclick="switchTab('add')" id="tab-add" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Tambah Tamu</button> <button onclick="switchTab('scan')" id="tab-scan" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Scan / Check-in</button>
    </nav>
    <section id="panel-events" class="p-4 hidden">
-    <div class="flex gap-2 mb-4">
-     <button onclick="switchEventMethod('list')" id="event-method-list" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Daftar Event</button> <button onclick="switchEventMethod('add')" id="event-method-add" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Buat Event Baru</button>
+    <div class="flex gap-2 mb-4"><button onclick="switchEventMethod('list')" id="event-method-list" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Daftar Event</button> <button onclick="switchEventMethod('add')" id="event-method-add" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Buat Event Baru</button>
     </div>
     <div id="event-list-view" class="space-y-3"></div>
     <div id="event-add-view" class="hidden bg-white rounded-xl p-5 shadow-sm border border-slate-100">
      <form id="event-form" class="space-y-4">
-      <div>
-       <label for="event-name-input" class="block text-sm font-medium text-slate-700 mb-1">Nama Event</label> <input id="event-name-input" type="text" required placeholder="Contoh: Wisuda 2025" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      <div><label for="event-name-input" class="block text-sm font-medium text-slate-700 mb-1">Nama Event</label> <input id="event-name-input" type="text" required placeholder="Contoh: Wisuda 2025" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
       </div>
-      <div>
-       <label for="event-date-input" class="block text-sm font-medium text-slate-700 mb-1">Tanggal Event</label> <input id="event-date-input" type="text" required placeholder="Contoh: 15 Juli 2025" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      <div><label for="event-date-input" class="block text-sm font-medium text-slate-700 mb-1">Tanggal Event</label> <input id="event-date-input" type="text" required placeholder="Contoh: 15 Juli 2025" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
       </div>
-      <div>
-       <label for="event-location-input" class="block text-sm font-medium text-slate-700 mb-1">Lokasi Event</label> <input id="event-location-input" type="text" required placeholder="Contoh: Auditorium Utama" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      <div><label for="event-location-input" class="block text-sm font-medium text-slate-700 mb-1">Lokasi Event</label> <input id="event-location-input" type="text" required placeholder="Contoh: Auditorium Utama" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
       </div>
-      <div class="flex gap-2">
-       <button type="submit" id="btn-event-save" class="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2"> <i data-lucide="plus" style="width:16px;height:16px"></i> Buat Event </button> <button type="button" onclick="cancelEventAdd()" class="flex-1 bg-slate-200 text-slate-700 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-300 transition">Batal</button>
+      <div class="flex gap-2"><button type="submit" id="btn-event-save" class="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2"> <i data-lucide="plus" style="width:16px;height:16px"></i> Buat Event </button> <button type="button" onclick="cancelEventAdd()" class="flex-1 bg-slate-200 text-slate-700 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-300 transition">Batal</button>
       </div>
      </form>
     </div>
    </section>
    <section id="panel-guests" class="p-4">
-    <div class="mb-3">
-     <input id="search-input" type="text" placeholder="Cari nama atau kode undangan..." class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" oninput="renderGuests()">
+    <div class="mb-3"><input id="search-input" type="text" placeholder="Cari nama atau kode undangan..." class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" oninput="renderGuests()">
     </div>
     <div id="guest-list" class="space-y-2"></div>
     <p id="empty-state" class="text-center text-slate-400 py-10 text-sm hidden">Belum ada tamu terdaftar. Tambahkan tamu baru.</p>
    </section>
    <section id="panel-add" class="p-4 hidden">
-    <div class="flex gap-2 mb-4">
-     <button onclick="switchAddMethod('manual')" id="method-tab-manual" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Input Manual</button> <button onclick="switchAddMethod('excel')" id="method-tab-excel" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Upload Excel</button>
+    <div class="flex gap-2 mb-4"><button onclick="switchAddMethod('manual')" id="method-tab-manual" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Input Manual</button> <button onclick="switchAddMethod('excel')" id="method-tab-excel" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Upload Excel</button>
     </div>
     <div id="method-manual" class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
      <form id="add-form" class="space-y-4">
-      <div>
-       <label for="input-name" class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label> <input id="input-name" type="text" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      <div><label for="input-name" class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label> <input id="input-name" type="text" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
       </div>
-      <div>
-       <label for="input-type" class="block text-sm font-medium text-slate-700 mb-1">Jenis Peserta</label> <select id="input-type" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"> <option value="mahasiswa">Mahasiswa</option> <option value="orang_tua">Orang Tua</option> </select>
+      <div><label for="input-type" class="block text-sm font-medium text-slate-700 mb-1">Jenis Peserta</label> <select id="input-type" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"> <option value="mahasiswa">Mahasiswa</option> <option value="orang_tua">Orang Tua</option> </select>
       </div>
-      <div>
-       <label for="input-nim" class="block text-sm font-medium text-slate-700 mb-1">NIM Mahasiswa</label> <input id="input-nim" type="text" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" placeholder="Contoh: 2301001">
+      <div><label for="input-nim" class="block text-sm font-medium text-slate-700 mb-1">NIM Mahasiswa</label> <input id="input-nim" type="text" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" placeholder="Contoh: 2301001">
       </div>
-      <div id="student-name-field" class="hidden">
-       <label for="input-student" class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label> <input id="input-student" type="text" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" placeholder="Nama mahasiswa yang menjadi orang tua ini">
+      <div id="student-name-field" class="hidden"><label for="input-student" class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label> <input id="input-student" type="text" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" placeholder="Nama mahasiswa yang menjadi orang tua ini">
       </div>
-      <div>
-       <label for="input-phone" class="block text-sm font-medium text-slate-700 mb-1">No. Telepon</label> <input id="input-phone" type="tel" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      <div><label for="input-phone" class="block text-sm font-medium text-slate-700 mb-1">No. Telepon</label> <input id="input-phone" type="tel" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
       </div>
       <div id="parent-count-info" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700"></div><button type="submit" id="btn-add" class="w-full bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2"> <i data-lucide="plus" style="width:16px;height:16px"></i> Tambah Tamu </button>
      </form>
     </div>
     <div id="method-excel" class="hidden bg-white rounded-xl p-5 shadow-sm border border-slate-100">
      <p class="text-sm text-slate-600 mb-4">Buat file Excel dengan kolom: <strong>Nama | Jenis | NIM | Nama Mahasiswa | Telepon</strong></p>
-     <div class="mb-4">
-      <button type="button" onclick="downloadExcelTemplate()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 py-2.5 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2"> <i data-lucide="download" style="width:16px;height:16px"></i> Download Template Excel </button>
+     <div class="mb-4"><button type="button" onclick="downloadExcelTemplate()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 py-2.5 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2"> <i data-lucide="download" style="width:16px;height:16px"></i> Download Template Excel </button>
      </div>
-     <div class="mb-4">
-      <label class="block text-sm font-medium text-slate-700 mb-2">Pilih File Excel</label>
-      <div class="relative border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition cursor-pointer" onclick="document.getElementById('excel-file-input').click()">
-       <i data-lucide="file-up" style="width:32px;height:32px" class="mx-auto text-slate-400 mb-2"></i>
+     <div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-2">Pilih File Excel</label>
+      <div class="relative border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition cursor-pointer" onclick="document.getElementById('excel-file-input').click()"><i data-lucide="file-up" style="width:32px;height:32px" class="mx-auto text-slate-400 mb-2"></i>
        <p class="text-sm font-medium text-slate-700">Klik untuk memilih file atau drag &amp; drop</p>
        <p class="text-xs text-slate-500 mt-1">Format: .xlsx atau .xls</p><input id="excel-file-input" type="file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload()">
       </div>
@@ -122,31 +104,26 @@
        <tbody id="excel-preview-rows"></tbody>
       </table>
      </div>
-     <div id="excel-error" class="hidden mb-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 flex items-start gap-2">
-      <i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:2px"></i>
+     <div id="excel-error" class="hidden mb-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 flex items-start gap-2"><i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:2px"></i>
       <div id="excel-error-text"></div>
      </div>
      <div id="excel-success" class="hidden mb-4 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm text-emerald-700"></div>
-     <div class="flex gap-2">
-      <button type="button" onclick="submitExcelData()" id="btn-excel-submit" class="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 hidden"> <i data-lucide="upload" style="width:16px;height:16px"></i> Upload <span id="excel-count">0</span> Data </button>
+     <div class="flex gap-2"><button type="button" onclick="submitExcelData()" id="btn-excel-submit" class="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 hidden"> <i data-lucide="upload" style="width:16px;height:16px"></i> Upload <span id="excel-count">0</span> Data </button>
      </div>
     </div>
    </section>
    <section id="panel-scan" class="p-4 hidden">
-    <div class="flex gap-2 mb-4">
-     <button onclick="switchScanTab('mahasiswa')" id="scan-tab-mahasiswa" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Scan Mahasiswa</button> <button onclick="switchScanTab('parents')" id="scan-tab-parents" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Scan Orang Tua</button>
+    <div class="flex gap-2 mb-4"><button onclick="switchScanTab('mahasiswa')" id="scan-tab-mahasiswa" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Scan Mahasiswa</button> <button onclick="switchScanTab('parents')" id="scan-tab-parents" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Scan Orang Tua</button>
     </div>
     <div id="scan-mahasiswa-panel" class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
      <p class="text-sm text-slate-600 mb-3">Masukkan NIM mahasiswa untuk check-in:</p>
-     <div class="flex gap-2">
-      <input id="scan-input-mahasiswa" type="text" placeholder="NIM Mahasiswa (contoh: 2301001)" class="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" onkeydown="if(event.key==='Enter'){event.preventDefault();doCheckInMahasiswa()}"> <button onclick="doCheckInMahasiswa()" id="btn-checkin-mahasiswa" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-emerald-700 transition">Check-in</button>
+     <div class="flex gap-2"><input id="scan-input-mahasiswa" type="text" placeholder="NIM Mahasiswa (contoh: 2301001)" class="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" onkeydown="if(event.key==='Enter'){event.preventDefault();doCheckInMahasiswa()}"> <button onclick="doCheckInMahasiswa()" id="btn-checkin-mahasiswa" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-emerald-700 transition">Check-in</button>
      </div>
      <div id="scan-result-mahasiswa" class="mt-4 hidden"></div>
     </div>
     <div id="scan-parents-panel" class="hidden bg-white rounded-xl p-5 shadow-sm border border-slate-100">
      <p class="text-sm text-slate-600 mb-3">Masukkan NIM untuk check-in orang tua:</p>
-     <div class="flex gap-2">
-      <input id="scan-input-parents" type="text" placeholder="NIM Mahasiswa (contoh: 2301001)" class="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" onkeydown="if(event.key==='Enter'){event.preventDefault();doCheckInParent()}"> <button onclick="doCheckInParent()" id="btn-checkin-parents" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-emerald-700 transition">Check-in</button>
+     <div class="flex gap-2"><input id="scan-input-parents" type="text" placeholder="NIM Mahasiswa (contoh: 2301001)" class="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" onkeydown="if(event.key==='Enter'){event.preventDefault();doCheckInParent()}"> <button onclick="doCheckInParent()" id="btn-checkin-parents" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-emerald-700 transition">Check-in</button>
      </div>
      <div id="scan-result-parents" class="mt-4 hidden"></div>
     </div>
@@ -165,6 +142,8 @@
   let currentAddMethod = 'manual';
   let currentEventMethod = 'list';
   let excelData = [];
+  let currentMode = 'admin'; // 'admin' or 'guest'
+  let guestEventId = null;
 
   const defaultConfig = {
     event_title: 'Wisuda Universitas 2025',
@@ -236,6 +215,12 @@
       allEvents = events;
       allGuests = guests;
       
+      // If in guest mode, render guest dashboard
+      if (currentMode === 'guest' && guestEventId) {
+        renderGuestDashboard();
+        return;
+      }
+      
       if (currentEventMethod === 'list') renderEventList();
       if (currentTab === 'guests' || currentTab === 'add' || currentTab === 'scan') {
         updateStats();
@@ -248,6 +233,15 @@
   (async () => {
     const r = await window.dataSdk.init(dataHandler);
     if (!r.isOk) console.error('Data SDK init failed');
+
+    // Check if this is a guest view
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get('event');
+    if (eventId) {
+      currentMode = 'guest';
+      guestEventId = eventId;
+      document.getElementById('app').innerHTML = '<div class="h-full w-full bg-slate-50 overflow-auto flex items-center justify-center"><p class="text-slate-400">Memuat dashboard event...</p></div>';
+    }
   })();
 
   function showToast(msg, type = 'success') {
@@ -297,7 +291,11 @@
       return;
     }
 
-    container.innerHTML = allEvents.map(evt => `
+    container.innerHTML = allEvents.map(evt => {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = `${baseUrl}?event=${evt.__backendId}`;
+      
+      return `
       <div class="bg-white rounded-lg p-4 border border-slate-100 shadow-sm">
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1">
@@ -310,6 +308,14 @@
           </div>
           <button onclick="setCurrentEvent('${evt.__backendId}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-3 py-2 rounded-lg font-medium transition">Buka</button>
         </div>
+        <div class="flex gap-2 mb-3">
+          <button onclick="copyShareLink('${shareUrl}')" class="flex-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+            <i data-lucide="link-2" style="width:12px;height:12px"></i> Salin Link
+          </button>
+          <button onclick="shareToWhatsApp('${evt.event_title}', '${evt.event_date}', '${shareUrl}')" class="flex-1 bg-green-50 hover:bg-green-100 text-green-700 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+            <i data-lucide="send" style="width:12px;height:12px"></i> WhatsApp
+          </button>
+        </div>
         <div class="flex gap-2">
           <button onclick="editEvent('${evt.__backendId}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
             <i data-lucide="edit-2" style="width:12px;height:12px"></i> Edit
@@ -319,8 +325,23 @@
           </button>
         </div>
       </div>
-    `).join('');
+    `}).join('');
     lucide.createIcons();
+  
+  function copyShareLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Link disalin ke clipboard!');
+    }).catch(() => {
+      showToast('Gagal menyalin link.', 'error');
+    });
+  }
+
+  function shareToWhatsApp(eventTitle, eventDate, shareUrl) {
+    const message = `Halo! 👋\n\nAnda diundang ke acara:\n📅 ${eventTitle}\n🗓️ ${eventDate}\n\nLihat detail & status check-in di sini:\n${shareUrl}`;
+    const encodedMsg = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMsg}`;
+    window.open(whatsappUrl, '_blank', 'width=800,height=600');
+  }
   }
 
   function setCurrentEvent(eventId) {
@@ -487,6 +508,86 @@
         </div>
       </div>
     `;
+  }
+
+  function renderGuestDashboard() {
+    const evt = allEvents.find(e => e.__backendId === guestEventId);
+    if (!evt) {
+      document.getElementById('app').innerHTML = '<div class="h-full w-full bg-slate-50 overflow-auto flex items-center justify-center"><div class="text-center"><p class="text-slate-400 text-lg mb-2">Event tidak ditemukan</p><p class="text-slate-300 text-sm">Link mungkin sudah tidak valid</p></div></div>';
+      return;
+    }
+
+    const eventGuests = allGuests.filter(g => g.event_id === guestEventId);
+    const checkedIn = eventGuests.filter(g => g.checked_in).length;
+
+    document.getElementById('app').innerHTML = `
+      <div class="h-full w-full bg-slate-50 overflow-auto">
+        <header class="bg-slate-900 text-white px-6 py-5">
+          <h1 class="text-2xl font-bold">${evt.event_title}</h1>
+          <div class="flex items-center gap-4 mt-2 text-slate-300 text-sm">
+            <span class="flex items-center gap-1"><i data-lucide="calendar" style="width:14px;height:14px"></i> ${evt.event_date}</span>
+            <span class="flex items-center gap-1"><i data-lucide="map-pin" style="width:14px;height:14px"></i> ${evt.event_location}</span>
+          </div>
+          <div class="flex gap-4 mt-3">
+            <span class="bg-slate-700 px-3 py-1 rounded-full text-xs"><strong>${eventGuests.length}</strong> Total Undangan</span>
+            <span class="bg-emerald-700 px-3 py-1 rounded-full text-xs"><strong>${checkedIn}</strong> Sudah Hadir</span>
+            <span class="bg-blue-700 px-3 py-1 rounded-full text-xs" id="progress-percent">0%</span>
+          </div>
+        </header>
+
+        <section class="p-4">
+          <div class="mb-6">
+            <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-700">Progress Check-in</span>
+                <span class="text-sm font-bold text-slate-900">${checkedIn}/${eventGuests.length}</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-2.5">
+                <div class="bg-emerald-600 h-2.5 rounded-full transition-all" style="width: ${eventGuests.length > 0 ? (checkedIn / eventGuests.length * 100) : 0}%"></div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="text-lg font-bold text-slate-800 mb-3">Daftar Tamu</h2>
+          <div id="guest-dashboard-list" class="space-y-2"></div>
+          <p id="empty-guests-state" class="text-center text-slate-400 py-10 text-sm ${eventGuests.length > 0 ? 'hidden' : ''}">Belum ada tamu terdaftar untuk event ini.</p>
+        </section>
+      </div>
+    `;
+
+    renderGuestDashboardList(eventGuests);
+    lucide.createIcons();
+  }
+
+  function renderGuestDashboardList(guests) {
+    const container = document.getElementById('guest-dashboard-list');
+    if (!container) return;
+
+    const sorted = guests.sort((a, b) => {
+      if (a.checked_in !== b.checked_in) return b.checked_in - a.checked_in;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    container.innerHTML = sorted.map(g => {
+      const badge = g.type === 'mahasiswa' ? '<span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">Mahasiswa</span>' : '<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">Orang Tua</span>';
+      const status = g.checked_in ? '<span class="text-emerald-600 text-xs font-medium flex items-center gap-1"><i data-lucide="check-circle-2" style="width:14px;height:14px"></i> Hadir</span>' : '<span class="text-slate-400 text-xs">Belum hadir</span>';
+      return `
+        <div class="bg-white rounded-lg p-3 border border-slate-100 shadow-sm flex items-center justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-medium text-sm text-slate-800">${g.name}</span>
+              ${badge}
+            </div>
+            <p class="text-xs text-slate-400 font-mono">NIM: ${g.nim}</p>
+          </div>
+          <div class="text-right">
+            ${status}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    lucide.createIcons();
   }
 
   function shareViaWhatsApp(name, nim) {
@@ -976,5 +1077,5 @@
 
   lucide.createIcons();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f85023c0450c3c2',t:'MTc3ODIwNzA3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f8558658734ce02',t:'MTc3ODIxMDYwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
