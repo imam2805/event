@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Invitation System</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    .tab-active { background: #1e293b; color: #f8fafc; }
+    .tab-inactive { background: #e2e8f0; color: #475569; }
+    .card-enter { animation: cardIn 0.3s ease forwards; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .pulse-check { animation: pulseGreen 0.5s ease; }
+    @keyframes pulseGreen { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    .toast { animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards; }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideOut { from { opacity: 1; } to { opacity: 0; } }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full bg-slate-50 overflow-auto">
+   <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+   <header class="bg-slate-900 text-white px-6 py-5">
+    <h1 id="event-title" class="text-2xl font-bold">Wisuda Universitas 2025</h1>
+    <div class="flex items-center gap-4 mt-2 text-slate-300 text-sm">
+     <span class="flex items-center gap-1"><i data-lucide="calendar" style="width:14px;height:14px"></i> <span id="event-date">15 Juli 2025</span></span> <span class="flex items-center gap-1"><i data-lucide="map-pin" style="width:14px;height:14px"></i> <span id="event-location">Auditorium Utama</span></span>
+    </div>
+    <div id="stats" class="flex gap-4 mt-3">
+     <span class="bg-slate-700 px-3 py-1 rounded-full text-xs"><span id="stat-total">0</span> Undangan</span> <span class="bg-emerald-700 px-3 py-1 rounded-full text-xs"><span id="stat-checked">0</span> Hadir</span>
+    </div>
+   </header>
+   <nav class="flex px-4 pt-4 gap-2 flex-wrap">
+    <button onclick="switchTab('events')" id="tab-events" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Kelola Event</button> <button onclick="switchTab('guests')" id="tab-guests" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Daftar Tamu</button> <button onclick="switchTab('add')" id="tab-add" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Tambah Tamu</button> <button onclick="switchTab('scan')" id="tab-scan" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer">Scan / Check-in</button>
+   </nav>
+   <section id="panel-events" class="p-4 hidden">
+    <div class="flex gap-2 mb-4">
+     <button onclick="switchEventMethod('list')" id="event-method-list" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Daftar Event</button> <button onclick="switchEventMethod('add')" id="event-method-add" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Buat Event Baru</button>
+    </div>
+    <div id="event-list-view" class="space-y-3"></div>
+    <div id="event-add-view" class="hidden bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+     <form id="event-form" class="space-y-4">
+      <div>
+       <label for="event-name-input" class="block text-sm font-medium text-slate-700 mb-1">Nama Event</label> <input id="event-name-input" type="text" required placeholder="Contoh: Wisuda 2025" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      </div>
+      <div>
+       <label for="event-date-input" class="block text-sm font-medium text-slate-700 mb-1">Tanggal Event</label> <input id="event-date-input" type="text" required placeholder="Contoh: 15 Juli 2025" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      </div>
+      <div>
+       <label for="event-location-input" class="block text-sm font-medium text-slate-700 mb-1">Lokasi Event</label> <input id="event-location-input" type="text" required placeholder="Contoh: Auditorium Utama" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      </div>
+      <div class="flex gap-2">
+       <button type="submit" id="btn-event-save" class="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2"> <i data-lucide="plus" style="width:16px;height:16px"></i> Buat Event </button> <button type="button" onclick="cancelEventAdd()" class="flex-1 bg-slate-200 text-slate-700 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-300 transition">Batal</button>
+      </div>
+     </form>
+    </div>
+   </section>
+   <section id="panel-guests" class="p-4">
+    <div class="mb-3">
+     <input id="search-input" type="text" placeholder="Cari nama atau kode undangan..." class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" oninput="renderGuests()">
+    </div>
+    <div id="guest-list" class="space-y-2"></div>
+    <p id="empty-state" class="text-center text-slate-400 py-10 text-sm hidden">Belum ada tamu terdaftar. Tambahkan tamu baru.</p>
+   </section>
+   <section id="panel-add" class="p-4 hidden">
+    <div class="flex gap-2 mb-4">
+     <button onclick="switchAddMethod('manual')" id="method-tab-manual" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Input Manual</button> <button onclick="switchAddMethod('excel')" id="method-tab-excel" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Upload Excel</button>
+    </div>
+    <div id="method-manual" class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+     <form id="add-form" class="space-y-4">
+      <div>
+       <label for="input-name" class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label> <input id="input-name" type="text" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      </div>
+      <div>
+       <label for="input-type" class="block text-sm font-medium text-slate-700 mb-1">Jenis Peserta</label> <select id="input-type" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"> <option value="mahasiswa">Mahasiswa</option> <option value="orang_tua">Orang Tua</option> </select>
+      </div>
+      <div>
+       <label for="input-nim" class="block text-sm font-medium text-slate-700 mb-1">NIM Mahasiswa</label> <input id="input-nim" type="text" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" placeholder="Contoh: 2301001">
+      </div>
+      <div id="student-name-field" class="hidden">
+       <label for="input-student" class="block text-sm font-medium text-slate-700 mb-1">Nama Mahasiswa</label> <input id="input-student" type="text" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" placeholder="Nama mahasiswa yang menjadi orang tua ini">
+      </div>
+      <div>
+       <label for="input-phone" class="block text-sm font-medium text-slate-700 mb-1">No. Telepon</label> <input id="input-phone" type="tel" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400">
+      </div>
+      <div id="parent-count-info" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700"></div><button type="submit" id="btn-add" class="w-full bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2"> <i data-lucide="plus" style="width:16px;height:16px"></i> Tambah Tamu </button>
+     </form>
+    </div>
+    <div id="method-excel" class="hidden bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+     <p class="text-sm text-slate-600 mb-4">Buat file Excel dengan kolom: <strong>Nama | Jenis | NIM | Nama Mahasiswa | Telepon</strong></p>
+     <div class="mb-4">
+      <button type="button" onclick="downloadExcelTemplate()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 py-2.5 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2"> <i data-lucide="download" style="width:16px;height:16px"></i> Download Template Excel </button>
+     </div>
+     <div class="mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-2">Pilih File Excel</label>
+      <div class="relative border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition cursor-pointer" onclick="document.getElementById('excel-file-input').click()">
+       <i data-lucide="file-up" style="width:32px;height:32px" class="mx-auto text-slate-400 mb-2"></i>
+       <p class="text-sm font-medium text-slate-700">Klik untuk memilih file atau drag &amp; drop</p>
+       <p class="text-xs text-slate-500 mt-1">Format: .xlsx atau .xls</p><input id="excel-file-input" type="file" accept=".xlsx,.xls" class="hidden" onchange="handleExcelUpload()">
+      </div>
+     </div>
+     <div id="excel-preview" class="hidden mb-4 bg-slate-50 rounded-lg p-4 max-h-80 overflow-auto border border-slate-200">
+      <div class="flex justify-between items-center mb-3">
+       <h4 class="text-sm font-semibold text-slate-700">Preview Data (<span id="preview-count">0</span> baris)</h4><button type="button" onclick="clearExcelFile()" class="text-xs text-slate-500 hover:text-slate-700 underline">Bersihkan</button>
+      </div>
+      <table class="text-xs w-full border-collapse">
+       <thead>
+        <tr class="bg-slate-200">
+         <th class="border border-slate-300 px-2 py-1 text-left">Nama</th>
+         <th class="border border-slate-300 px-2 py-1 text-left">Jenis</th>
+         <th class="border border-slate-300 px-2 py-1 text-left">NIM</th>
+         <th class="border border-slate-300 px-2 py-1 text-left">Nama Mahasiswa</th>
+         <th class="border border-slate-300 px-2 py-1 text-left">Telepon</th>
+        </tr>
+       </thead>
+       <tbody id="excel-preview-rows"></tbody>
+      </table>
+     </div>
+     <div id="excel-error" class="hidden mb-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 flex items-start gap-2">
+      <i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:2px"></i>
+      <div id="excel-error-text"></div>
+     </div>
+     <div id="excel-success" class="hidden mb-4 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm text-emerald-700"></div>
+     <div class="flex gap-2">
+      <button type="button" onclick="submitExcelData()" id="btn-excel-submit" class="flex-1 bg-slate-900 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 hidden"> <i data-lucide="upload" style="width:16px;height:16px"></i> Upload <span id="excel-count">0</span> Data </button>
+     </div>
+    </div>
+   </section>
+   <section id="panel-scan" class="p-4 hidden">
+    <div class="flex gap-2 mb-4">
+     <button onclick="switchScanTab('mahasiswa')" id="scan-tab-mahasiswa" class="tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all">Scan Mahasiswa</button> <button onclick="switchScanTab('parents')" id="scan-tab-parents" class="tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all">Scan Orang Tua</button>
+    </div>
+    <div id="scan-mahasiswa-panel" class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+     <p class="text-sm text-slate-600 mb-3">Masukkan NIM mahasiswa untuk check-in:</p>
+     <div class="flex gap-2">
+      <input id="scan-input-mahasiswa" type="text" placeholder="NIM Mahasiswa (contoh: 2301001)" class="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" onkeydown="if(event.key==='Enter'){event.preventDefault();doCheckInMahasiswa()}"> <button onclick="doCheckInMahasiswa()" id="btn-checkin-mahasiswa" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-emerald-700 transition">Check-in</button>
+     </div>
+     <div id="scan-result-mahasiswa" class="mt-4 hidden"></div>
+    </div>
+    <div id="scan-parents-panel" class="hidden bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+     <p class="text-sm text-slate-600 mb-3">Masukkan NIM untuk check-in orang tua:</p>
+     <div class="flex gap-2">
+      <input id="scan-input-parents" type="text" placeholder="NIM Mahasiswa (contoh: 2301001)" class="flex-1 px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" onkeydown="if(event.key==='Enter'){event.preventDefault();doCheckInParent()}"> <button onclick="doCheckInParent()" id="btn-checkin-parents" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-emerald-700 transition">Check-in</button>
+     </div>
+     <div id="scan-result-parents" class="mt-4 hidden"></div>
+    </div>
+    <div class="mt-5">
+     <h3 class="text-sm font-semibold text-slate-700 mb-2">Riwayat Check-in Terbaru</h3>
+     <div id="checkin-history" class="space-y-2"></div>
+    </div>
+   </section>
+  </div>
+  <script>
+  let allGuests = [];
+  let allEvents = [];
+  let currentEvent = null;
+  let currentTab = 'guests';
+  let currentScanTab = 'mahasiswa';
+  let currentAddMethod = 'manual';
+  let currentEventMethod = 'list';
+  let excelData = [];
+
+  const defaultConfig = {
+    event_title: 'Wisuda Universitas 2025',
+    event_date: '15 Juli 2025',
+    event_location: 'Auditorium Utama',
+    background_color: '#f8fafc',
+    header_color: '#1e293b',
+    text_color: '#334155',
+    primary_action: '#059669',
+    secondary_action: '#475569',
+    font_family: 'DM Sans',
+    font_size: 14
+  };
+
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => {
+      const c = { ...defaultConfig, ...config };
+      document.getElementById('event-title').textContent = c.event_title;
+      document.getElementById('event-date').textContent = c.event_date;
+      document.getElementById('event-location').textContent = c.event_location;
+      document.querySelector('header').style.backgroundColor = c.header_color;
+      document.getElementById('app').style.backgroundColor = c.background_color;
+      document.body.style.fontFamily = `${c.font_family}, DM Sans, sans-serif`;
+      document.body.style.fontSize = `${c.font_size}px`;
+      document.getElementById('btn-checkin-mahasiswa').style.backgroundColor = c.primary_action;
+      document.getElementById('btn-checkin-parents').style.backgroundColor = c.primary_action;
+    },
+    mapToCapabilities: (config) => {
+      const c = { ...defaultConfig, ...config };
+      const makeColor = (key) => ({
+        get: () => c[key] || defaultConfig[key],
+        set: (v) => { c[key] = v; window.elementSdk.setConfig({ [key]: v }); }
+      });
+      return {
+        recolorables: [
+          makeColor('background_color'),
+          makeColor('header_color'),
+          makeColor('text_color'),
+          makeColor('primary_action'),
+          makeColor('secondary_action')
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => c.font_family || defaultConfig.font_family,
+          set: (v) => { c.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+        },
+        fontSizeable: {
+          get: () => c.font_size || defaultConfig.font_size,
+          set: (v) => { c.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+        }
+      };
+    },
+    mapToEditPanelValues: (config) => {
+      const c = { ...defaultConfig, ...config };
+      return new Map([
+        ['event_title', c.event_title],
+        ['event_date', c.event_date],
+        ['event_location', c.event_location]
+      ]);
+    }
+  });
+
+  const dataHandler = {
+    onDataChanged(data) {
+      const events = data.filter(d => d.event_title);
+      const guests = data.filter(d => !d.event_title);
+      
+      allEvents = events;
+      allGuests = guests;
+      
+      if (currentEventMethod === 'list') renderEventList();
+      if (currentTab === 'guests' || currentTab === 'add' || currentTab === 'scan') {
+        updateStats();
+        renderGuests();
+        renderCheckinHistory();
+      }
+    }
+  };
+
+  (async () => {
+    const r = await window.dataSdk.init(dataHandler);
+    if (!r.isOk) console.error('Data SDK init failed');
+  })();
+
+  function showToast(msg, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const div = document.createElement('div');
+    div.className = `toast px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-500' : 'bg-slate-700'}`;
+    div.textContent = msg;
+    container.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    ['events', 'guests', 'add', 'scan'].forEach(t => {
+      const panel = document.getElementById(`panel-${t}`);
+      if (panel) panel.classList.toggle('hidden', t !== tab);
+      const tabBtn = document.getElementById(`tab-${t}`);
+      if (tabBtn) {
+        tabBtn.className = t === tab ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer';
+      }
+    });
+    if (tab === 'guests' || tab === 'add' || tab === 'scan') {
+      if (!currentEvent) {
+        showToast('Pilih event terlebih dahulu!', 'error');
+        switchTab('events');
+        return;
+      }
+    }
+    if (tab === 'events') {
+      renderEventList();
+    }
+  }
+
+  function switchEventMethod(method) {
+    currentEventMethod = method;
+    document.getElementById('event-list-view').classList.toggle('hidden', method !== 'list');
+    document.getElementById('event-add-view').classList.toggle('hidden', method !== 'add');
+    document.getElementById('event-method-list').className = method === 'list' ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all';
+    document.getElementById('event-method-add').className = method === 'add' ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all';
+    if (method === 'list') renderEventList();
+  }
+
+  function renderEventList() {
+    const container = document.getElementById('event-list-view');
+    if (allEvents.length === 0) {
+      container.innerHTML = '<p class="text-center text-slate-400 py-6 text-sm">Belum ada event. Buat event baru untuk memulai.</p>';
+      return;
+    }
+
+    container.innerHTML = allEvents.map(evt => `
+      <div class="bg-white rounded-lg p-4 border border-slate-100 shadow-sm">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex-1">
+            <h3 class="font-semibold text-slate-800 text-sm">${evt.event_title}</h3>
+            <div class="flex gap-3 mt-2 text-xs text-slate-500">
+              <span class="flex items-center gap-1"><i data-lucide="calendar" style="width:12px;height:12px"></i> ${evt.event_date}</span>
+              <span class="flex items-center gap-1"><i data-lucide="map-pin" style="width:12px;height:12px"></i> ${evt.event_location}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Tamu: <strong>${allGuests.filter(g => g.event_id === evt.__backendId).length}</strong></p>
+          </div>
+          <button onclick="setCurrentEvent('${evt.__backendId}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-3 py-2 rounded-lg font-medium transition">Buka</button>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="editEvent('${evt.__backendId}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+            <i data-lucide="edit-2" style="width:12px;height:12px"></i> Edit
+          </button>
+          <button onclick="deleteEvent('${evt.__backendId}')" class="flex-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+            <i data-lucide="trash-2" style="width:12px;height:12px"></i> Hapus
+          </button>
+        </div>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  }
+
+  function setCurrentEvent(eventId) {
+    const evt = allEvents.find(e => e.__backendId === eventId);
+    if (evt) {
+      currentEvent = evt;
+      document.getElementById('event-title').textContent = evt.event_title;
+      document.getElementById('event-date').textContent = evt.event_date;
+      document.getElementById('event-location').textContent = evt.event_location;
+      switchTab('guests');
+      renderGuests();
+      updateStats();
+    }
+  }
+
+  function editEvent(eventId) {
+    const evt = allEvents.find(e => e.__backendId === eventId);
+    if (evt) {
+      document.getElementById('event-name-input').value = evt.event_title;
+      document.getElementById('event-date-input').value = evt.event_date;
+      document.getElementById('event-location-input').value = evt.event_location;
+      document.getElementById('btn-event-save').dataset.eventId = eventId;
+      document.getElementById('btn-event-save').innerHTML = '<i data-lucide="save" style="width:16px;height:16px"></i> Simpan Perubahan';
+      switchEventMethod('add');
+      lucide.createIcons();
+    }
+  }
+
+  function cancelEventAdd() {
+    document.getElementById('event-form').reset();
+    delete document.getElementById('btn-event-save').dataset.eventId;
+    document.getElementById('btn-event-save').innerHTML = '<i data-lucide="plus" style="width:16px;height:16px"></i> Buat Event';
+    switchEventMethod('list');
+    lucide.createIcons();
+  }
+
+  async function deleteEvent(eventId) {
+    const evt = allEvents.find(e => e.__backendId === eventId);
+    if (!evt) return;
+
+    const confirmDiv = document.createElement('div');
+    confirmDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    confirmDiv.innerHTML = `
+      <div class="bg-white rounded-lg p-5 max-w-sm shadow-lg">
+        <h3 class="font-bold text-slate-800 mb-2">Hapus Event?</h3>
+        <p class="text-sm text-slate-600 mb-4">Event "<strong>${evt.event_title}</strong>" akan dihapus beserta ${allGuests.filter(g => g.event_id === eventId).length} data tamu.</p>
+        <div class="flex gap-2">
+          <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg font-medium text-sm hover:bg-slate-300 transition">Batal</button>
+          <button onclick="confirmDeleteEvent('${eventId}')" class="flex-1 bg-red-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-red-700 transition">Hapus</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(confirmDiv);
+  }
+
+  async function confirmDeleteEvent(eventId) {
+    const evt = allEvents.find(e => e.__backendId === eventId);
+    if (!evt) return;
+
+    const guestsToDelete = allGuests.filter(g => g.event_id === eventId);
+    for (let guest of guestsToDelete) {
+      await window.dataSdk.delete(guest);
+    }
+
+    const result = await window.dataSdk.delete(evt);
+    document.querySelectorAll('.fixed').forEach(d => d.remove());
+    
+    if (result.isOk) {
+      if (currentEvent?.__backendId === eventId) {
+        currentEvent = null;
+        switchTab('events');
+      }
+      showToast('Event berhasil dihapus!');
+    } else {
+      showToast('Gagal menghapus event.', 'error');
+    }
+  }
+
+  function switchAddMethod(method) {
+    currentAddMethod = method;
+    document.getElementById('method-manual').classList.toggle('hidden', method !== 'manual');
+    document.getElementById('method-excel').classList.toggle('hidden', method !== 'excel');
+    document.getElementById('method-tab-manual').className = method === 'manual' ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all';
+    document.getElementById('method-tab-excel').className = method === 'excel' ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all';
+  }
+
+  function switchScanTab(tab) {
+    currentScanTab = tab;
+    document.getElementById('scan-mahasiswa-panel').classList.toggle('hidden', tab !== 'mahasiswa');
+    document.getElementById('scan-parents-panel').classList.toggle('hidden', tab !== 'parents');
+    document.getElementById('scan-tab-mahasiswa').className = tab === 'mahasiswa' ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all';
+    document.getElementById('scan-tab-parents').className = tab === 'parents' ? 'tab-active px-4 py-2 rounded-lg text-sm font-medium transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-all';
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent = allGuests.length;
+    document.getElementById('stat-checked').textContent = allGuests.filter(g => g.checked_in).length;
+  }
+
+  function renderGuests() {
+    const query = (document.getElementById('search-input').value || '').toLowerCase();
+    const filtered = allGuests.filter(g => g.name.toLowerCase().includes(query) || (g.nim || '').toLowerCase().includes(query));
+    const list = document.getElementById('guest-list');
+    const empty = document.getElementById('empty-state');
+
+    if (filtered.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    const existingMap = new Map([...list.children].map(el => [el.dataset.id, el]));
+    const fragment = document.createDocumentFragment();
+
+    filtered.forEach(g => {
+      let el = existingMap.get(g.__backendId);
+      if (el) {
+        updateGuestCard(el, g);
+        existingMap.delete(g.__backendId);
+      } else {
+        el = createGuestCard(g);
+      }
+      fragment.appendChild(el);
+    });
+
+    existingMap.forEach(el => el.remove());
+    list.innerHTML = '';
+    list.appendChild(fragment);
+  }
+
+  function createGuestCard(g) {
+    const div = document.createElement('div');
+    div.dataset.id = g.__backendId;
+    div.className = 'card-enter';
+    updateGuestCard(div, g);
+    return div;
+  }
+
+  function updateGuestCard(el, g) {
+    const badge = g.type === 'mahasiswa' ? '<span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">Mahasiswa</span>' : '<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">Orang Tua</span>';
+    const status = g.checked_in ? '<span class="text-emerald-600 text-xs font-medium flex items-center gap-1">✓ Hadir</span>' : '<span class="text-slate-400 text-xs">Belum hadir</span>';
+    const studentInfo = g.student_name ? `<p class="text-xs text-slate-400">Mahasiswa: ${g.student_name}</p>` : '';
+
+    el.innerHTML = `
+      <div class="bg-white rounded-lg p-4 border border-slate-100 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-semibold text-sm text-slate-800">${g.name}</span>
+              ${badge}
+            </div>
+            ${studentInfo}
+            <p class="text-xs text-slate-400 font-mono mt-1">NIM: ${g.nim || '-'}</p>
+          </div>
+          <div class="text-right">
+            ${status}
+          </div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button onclick="shareViaWhatsApp('${g.name}', '${g.nim}')" class="flex-1 bg-green-50 hover:bg-green-100 text-green-700 text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+            <i data-lucide="send" style="width:14px;height:14px"></i> WhatsApp
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function shareViaWhatsApp(name, nim) {
+    const config = window.elementSdk?.config || defaultConfig;
+    const eventTitle = config.event_title || defaultConfig.event_title;
+    const eventDate = config.event_date || defaultConfig.event_date;
+    const eventLocation = config.event_location || defaultConfig.event_location;
+
+    const message = `Halo ${name}!\n\nAnda telah diundang ke acara:\n📅 ${eventTitle}\n🗓️ ${eventDate}\n📍 ${eventLocation}\n\nKode Undangan: ${nim}\n\nSilakan hadir tepat waktu. Terima kasih!`;
+
+    const encodedMsg = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMsg}`;
+    
+    // Open WhatsApp in a new tab/window for better compatibility
+    window.open(whatsappUrl, '_blank', 'width=800,height=600');
+  }
+
+  function renderCheckinHistory() {
+    const checked = allGuests.filter(g => g.checked_in).sort((a, b) => (b.checked_in_at || '').localeCompare(a.checked_in_at || '')).slice(0, 10);
+    const container = document.getElementById('checkin-history');
+    if (checked.length === 0) {
+      container.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Belum ada yang check-in.</p>';
+      return;
+    }
+    container.innerHTML = checked.map(g => {
+      const time = g.checked_in_at ? new Date(g.checked_in_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+      return `<div class="bg-white rounded-lg px-4 py-3 border border-slate-100 flex justify-between items-center text-sm">
+        <span class="font-medium text-slate-700">${g.name}</span>
+        <span class="text-slate-400 text-xs">${time}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('input-type').addEventListener('change', (e) => {
+    const field = document.getElementById('student-name-field');
+    const parentCountInfo = document.getElementById('parent-count-info');
+    if (e.target.value === 'orang_tua') {
+      field.classList.remove('hidden');
+      parentCountInfo.classList.remove('hidden');
+      updateParentCountInfo();
+    } else {
+      field.classList.add('hidden');
+      parentCountInfo.classList.add('hidden');
+    }
+  });
+
+  function updateParentCountInfo() {
+    if (!currentEvent) return;
+    const nim = document.getElementById('input-nim').value.trim();
+    const parentCountInfo = document.getElementById('parent-count-info');
+    if (!nim) {
+      parentCountInfo.innerHTML = 'Masukkan NIM untuk melihat jumlah orang tua terdaftar';
+      return;
+    }
+    const parentCount = allGuests.filter(g => g.type === 'orang_tua' && g.nim === nim && g.event_id === currentEvent.__backendId).length;
+    if (parentCount >= 2) {
+      parentCountInfo.classList.remove('hidden', 'bg-amber-50', 'border-amber-200', 'text-amber-700');
+      parentCountInfo.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+      parentCountInfo.innerHTML = `⚠️ Sudah ada ${parentCount} orang tua terdaftar untuk NIM ini. Maksimal 2 orang tua.`;
+    } else {
+      parentCountInfo.classList.remove('bg-red-50', 'border-red-200', 'text-red-700');
+      parentCountInfo.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-700');
+      parentCountInfo.innerHTML = `Sudah ada ${parentCount} orang tua terdaftar. Bisa menambah ${2 - parentCount} lagi.`;
+    }
+  }
+
+  document.getElementById('input-nim').addEventListener('input', updateParentCountInfo);
+
+  function downloadExcelTemplate() {
+    try {
+      const data = [
+        ['Nama', 'Jenis', 'NIM', 'Nama Mahasiswa', 'Telepon'],
+        ['Budi Santoso', 'mahasiswa', '2301001', '-', '085123456789'],
+        ['Ibu Siti', 'orang_tua', '2301001', 'Budi Santoso', '085654321098'],
+        ['Pak Ahmad', 'orang_tua', '2301001', 'Budi Santoso', '085987654321'],
+        ['Ani Wijaya', 'mahasiswa', '2301002', '-', '085111222333'],
+        ['Ibu Retno', 'orang_tua', '2301002', 'Ani Wijaya', '085444555666']
+      ];
+
+      const worksheet = XLSX.utils.aoa_to_sheet(data);
+      worksheet['!cols'] = [
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 25 },
+        { wch: 15 }
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Data Tamu');
+      XLSX.writeFile(workbook, 'template_tamu_undangan.xlsx');
+      showToast('Template Excel berhasil diunduh!');
+    } catch (err) {
+      showToast('Gagal mengunduh template Excel.', 'error');
+    }
+  }
+
+  document.getElementById('add-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (allGuests.length >= 999) { showToast('Batas maksimum 999 tamu tercapai!', 'error'); return; }
+
+    const type = document.getElementById('input-type').value;
+    const nim = document.getElementById('input-nim').value.trim();
+
+    if (type === 'orang_tua') {
+      const parentCount = allGuests.filter(g => g.type === 'orang_tua' && g.nim === nim).length;
+      if (parentCount >= 2) {
+        showToast('Maksimal 2 orang tua per mahasiswa!', 'error');
+        return;
+      }
+      if (!document.getElementById('input-student').value.trim()) {
+        showToast('Nama mahasiswa harus diisi untuk orang tua!', 'error');
+        return;
+      }
+    }
+
+    const btn = document.getElementById('btn-add');
+    btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+    const result = await window.dataSdk.create({
+      name: document.getElementById('input-name').value.trim(),
+      type: type,
+      nim: nim,
+      student_name: document.getElementById('input-student').value.trim(),
+      phone: document.getElementById('input-phone').value.trim(),
+      invite_code: nim,
+      checked_in: false,
+      checked_in_at: '',
+      event_id: currentEvent.__backendId,
+      event_title: '',
+      event_date: '',
+      event_location: '',
+      parent_count: 0
+    });
+
+    btn.disabled = false; btn.innerHTML = '<i data-lucide="plus" style="width:16px;height:16px"></i> Tambah Tamu';
+    lucide.createIcons();
+
+    if (result.isOk) {
+      showToast('Tamu berhasil ditambahkan!');
+      e.target.reset();
+      document.getElementById('student-name-field').classList.add('hidden');
+      document.getElementById('parent-count-info').classList.add('hidden');
+    } else {
+      showToast('Gagal menambahkan tamu.', 'error');
+    }
+  });
+
+  function handleExcelUpload() {
+    const fileInput = document.getElementById('excel-file-input');
+    const file = fileInput.files[0];
+    const errorDiv = document.getElementById('excel-error');
+    const errorText = document.getElementById('excel-error-text');
+    const previewDiv = document.getElementById('excel-preview');
+    const previewRows = document.getElementById('excel-preview-rows');
+    const previewCount = document.getElementById('preview-count');
+    const submitBtn = document.getElementById('btn-excel-submit');
+    const successDiv = document.getElementById('excel-success');
+
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(worksheet);
+
+        if (rows.length === 0) {
+          errorDiv.classList.remove('hidden');
+          errorText.textContent = 'File Excel kosong! Minimal ada 1 baris data.';
+          previewDiv.classList.add('hidden');
+          submitBtn.classList.add('hidden');
+          successDiv.classList.add('hidden');
+          return;
+        }
+
+        excelData = [];
+        previewRows.innerHTML = '';
+        let hasError = false;
+        let errorMsg = '';
+
+        rows.forEach((row, idx) => {
+          const name = (row.Nama || row.nama || '').toString().trim();
+          const type = (row.Jenis || row.jenis || '').toString().trim().toLowerCase();
+          const nim = (row.NIM || row.nim || '').toString().trim();
+          const studentName = (row['Nama Mahasiswa'] || row['nama_mahasiswa'] || '').toString().trim();
+          const phone = (row.Telepon || row.telepon || '').toString().trim();
+
+          if (!name || !nim) {
+            hasError = true;
+            errorMsg = `Baris ${idx + 2}: Nama dan NIM harus diisi.`;
+            return;
+          }
+          if (type !== 'mahasiswa' && type !== 'orang_tua') {
+            hasError = true;
+            errorMsg = `Baris ${idx + 2}: Jenis harus "mahasiswa" atau "orang_tua".`;
+            return;
+          }
+          if (type === 'orang_tua' && !studentName) {
+            hasError = true;
+            errorMsg = `Baris ${idx + 2}: Nama Mahasiswa harus diisi untuk orang tua.`;
+            return;
+          }
+
+          excelData.push({ name, type, nim, student_name: studentName, phone });
+
+          const tr = document.createElement('tr');
+          const typeBadge = type === 'mahasiswa' ? '<span class="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded">Mahasiswa</span>' : '<span class="inline-block bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded">Orang Tua</span>';
+          tr.innerHTML = `<td class="border border-slate-300 px-2 py-1">${name}</td><td class="border border-slate-300 px-2 py-1">${typeBadge}</td><td class="border border-slate-300 px-2 py-1 font-mono">${nim}</td><td class="border border-slate-300 px-2 py-1">${studentName}</td><td class="border border-slate-300 px-2 py-1">${phone}</td>`;
+          previewRows.appendChild(tr);
+        });
+
+        if (hasError) {
+          errorDiv.classList.remove('hidden');
+          errorText.textContent = errorMsg;
+          previewDiv.classList.add('hidden');
+          submitBtn.classList.add('hidden');
+          successDiv.classList.add('hidden');
+          excelData = [];
+          return;
+        }
+
+        errorDiv.classList.add('hidden');
+        successDiv.classList.add('hidden');
+        previewDiv.classList.remove('hidden');
+        submitBtn.classList.remove('hidden');
+        previewCount.textContent = excelData.length;
+        submitBtn.innerHTML = `<i data-lucide="upload" style="width:16px;height:16px"></i> Upload ${excelData.length} Data`;
+        lucide.createIcons();
+      } catch (err) {
+        errorDiv.classList.remove('hidden');
+        errorText.textContent = 'Gagal membaca file Excel. Pastikan format file benar (.xlsx atau .xls).';
+        previewDiv.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+        successDiv.classList.add('hidden');
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+
+  function clearExcelFile() {
+    document.getElementById('excel-file-input').value = '';
+    document.getElementById('excel-preview').classList.add('hidden');
+    document.getElementById('excel-error').classList.add('hidden');
+    document.getElementById('excel-success').classList.add('hidden');
+    document.getElementById('btn-excel-submit').classList.add('hidden');
+    excelData = [];
+  }
+
+  document.getElementById('event-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('event-name-input').value.trim();
+    const date = document.getElementById('event-date-input').value.trim();
+    const location = document.getElementById('event-location-input').value.trim();
+    const btn = document.getElementById('btn-event-save');
+    const eventId = btn.dataset.eventId;
+
+    if (!title || !date || !location) {
+      showToast('Semua field harus diisi!', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    const originalHTML = btn.innerHTML;
+
+    if (eventId) {
+      // Edit mode
+      const evt = allEvents.find(e => e.__backendId === eventId);
+      if (evt) {
+        const result = await window.dataSdk.update({
+          ...evt,
+          event_title: title,
+          event_date: date,
+          event_location: location
+        });
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        if (result.isOk) {
+          showToast('Event berhasil diperbarui!');
+          cancelEventAdd();
+        } else {
+          showToast('Gagal memperbarui event.', 'error');
+        }
+      }
+    } else {
+      // Create mode
+      const result = await window.dataSdk.create({
+        event_title: title,
+        event_date: date,
+        event_location: location,
+        name: '',
+        type: '',
+        nim: '',
+        student_name: '',
+        phone: '',
+        invite_code: '',
+        checked_in: false,
+        checked_in_at: '',
+        event_id: '',
+        parent_count: 0
+      });
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+      if (result.isOk) {
+        showToast('Event berhasil dibuat!');
+        cancelEventAdd();
+      } else {
+        showToast('Gagal membuat event.', 'error');
+      }
+    }
+  });
+
+  async function submitExcelData() {
+    if (excelData.length === 0) {
+      showToast('Tidak ada data untuk upload.', 'error');
+      return;
+    }
+
+    if (!currentEvent) {
+      showToast('Pilih event terlebih dahulu!', 'error');
+      return;
+    }
+
+    const canAdd = 999 - allGuests.length;
+    if (canAdd <= 0) {
+      showToast('Batas maksimum 999 tamu sudah tercapai!', 'error');
+      return;
+    }
+
+    if (excelData.length > canAdd) {
+      showToast(`Hanya bisa menambah ${canAdd} data. Sisa slot: ${canAdd}.`, 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btn-excel-submit');
+    btn.disabled = true;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" style="width:16px;height:16px"></i> Memproses...';
+    lucide.createIcons();
+
+    let successCount = 0;
+    let failCount = 0;
+    const failedRows = [];
+
+    for (let i = 0; i < excelData.length; i++) {
+      const data = excelData[i];
+
+      if (data.type === 'orang_tua') {
+        const parentCount = allGuests.filter(g => g.type === 'orang_tua' && g.nim === data.nim && g.event_id === currentEvent.__backendId).length;
+        if (parentCount >= 2) {
+          failCount++;
+          failedRows.push(`${data.name} (maksimal 2 orang tua)`);
+          continue;
+        }
+      }
+
+      const result = await window.dataSdk.create({
+        name: data.name,
+        type: data.type,
+        nim: data.nim,
+        student_name: data.student_name,
+        phone: data.phone,
+        invite_code: data.nim,
+        checked_in: false,
+        checked_in_at: '',
+        event_id: currentEvent.__backendId,
+        event_title: '',
+        event_date: '',
+        event_location: '',
+        parent_count: data.type === 'orang_tua' ? 1 : 0
+      });
+
+      if (result.isOk) {
+        successCount++;
+      } else {
+        failCount++;
+        failedRows.push(data.name);
+      }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+    lucide.createIcons();
+
+    const successDiv = document.getElementById('excel-success');
+    const errorDiv = document.getElementById('excel-error');
+    const errorText = document.getElementById('excel-error-text');
+
+    if (successCount > 0) {
+      successDiv.classList.remove('hidden');
+      successDiv.innerHTML = `✓ <strong>${successCount} data berhasil</strong> ditambahkan ke sistem.`;
+      showToast(`${successCount} tamu berhasil diupload!`);
+    }
+
+    if (failCount > 0) {
+      errorDiv.classList.remove('hidden');
+      let msg = `⚠️ ${failCount} data gagal atau terlewat:<br>`;
+      if (failedRows.length > 0) {
+        msg += failedRows.slice(0, 3).join(', ');
+        if (failedRows.length > 3) msg += `, dan ${failedRows.length - 3} lainnya`;
+      }
+      errorText.innerHTML = msg;
+      showToast(`${failCount} data gagal diupload.`, 'error');
+    }
+
+    excelData = [];
+    document.getElementById('excel-file-input').value = '';
+    document.getElementById('excel-preview').classList.add('hidden');
+    document.getElementById('btn-excel-submit').classList.add('hidden');
+  }
+
+  async function doCheckInMahasiswa() {
+    const input = document.getElementById('scan-input-mahasiswa');
+    const nim = input.value.trim();
+    const resultDiv = document.getElementById('scan-result-mahasiswa');
+
+    if (!nim) { showToast('Masukkan NIM mahasiswa.', 'error'); return; }
+
+    const guest = allGuests.find(g => g.type === 'mahasiswa' && g.nim === nim);
+    if (!guest) {
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">NIM <strong>${nim}</strong> tidak ditemukan atau bukan mahasiswa.</div>`;
+      return;
+    }
+    if (guest.checked_in) {
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = `<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-700"><strong>${guest.name}</strong> sudah check-in sebelumnya.</div>`;
+      return;
+    }
+
+    const btn = document.getElementById('btn-checkin-mahasiswa');
+    btn.disabled = true; btn.textContent = 'Memproses...';
+
+    const r = await window.dataSdk.update({ ...guest, checked_in: true, checked_in_at: new Date().toISOString() });
+
+    btn.disabled = false; btn.textContent = 'Check-in';
+
+    if (r.isOk) {
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = `<div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm text-emerald-700 pulse-check">✓ <strong>${guest.name}</strong> berhasil check-in!</div>`;
+      input.value = '';
+      showToast(`${guest.name} berhasil check-in!`);
+    } else {
+      showToast('Gagal melakukan check-in.', 'error');
+    }
+  }
+
+  async function doCheckInParent() {
+    const input = document.getElementById('scan-input-parents');
+    const nim = input.value.trim();
+    const resultDiv = document.getElementById('scan-result-parents');
+
+    if (!nim) { showToast('Masukkan NIM.', 'error'); return; }
+
+    const parents = allGuests.filter(g => g.type === 'orang_tua' && g.nim === nim && !g.checked_in);
+    
+    if (parents.length === 0) {
+      const allParents = allGuests.filter(g => g.type === 'orang_tua' && g.nim === nim);
+      if (allParents.length === 0) {
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">Tidak ada orang tua terdaftar untuk NIM <strong>${nim}</strong>.</div>`;
+      } else {
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = `<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-700">Semua orang tua untuk NIM <strong>${nim}</strong> sudah check-in.</div>`;
+      }
+      return;
+    }
+
+    const parent = parents[0];
+    const btn = document.getElementById('btn-checkin-parents');
+    btn.disabled = true; btn.textContent = 'Memproses...';
+
+    const r = await window.dataSdk.update({ ...parent, checked_in: true, checked_in_at: new Date().toISOString() });
+
+    btn.disabled = false; btn.textContent = 'Check-in';
+
+    if (r.isOk) {
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = `<div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm text-emerald-700 pulse-check">✓ <strong>${parent.name}</strong> berhasil check-in!</div>`;
+      input.value = '';
+      showToast(`${parent.name} berhasil check-in!`);
+    } else {
+      showToast('Gagal melakukan check-in.', 'error');
+    }
+  }
+
+  lucide.createIcons();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f85023c0450c3c2',t:'MTc3ODIwNzA3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
